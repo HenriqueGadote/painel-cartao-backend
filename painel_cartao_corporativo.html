@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conciliação de Cartão Corporativo · TSA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-950:#0B1B30;
+    --navy-900:#10233F;
+    --navy-800:#1B3A5C;
+    --navy-700:#274A70;
+    --steel-100:#EEF2F7;
+    --steel-200:#DCE3EC;
+    --steel-400:#9BAAC0;
+    --paper:#F5F6F8;
+    --white:#FFFFFF;
+    --amber:#E8A33D;
+    --amber-deep:#C97F1E;
+    --red:#D6493E;
+    --red-deep:#B03429;
+    --green:#2E9E6C;
+    --green-deep:#217A54;
+    --ink:#132036;
+    --ink-soft:#5B6B82;
+    --font-ui: 'Inter', -apple-system, sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+    --radius: 10px;
+    --shadow: 0 1px 2px rgba(16,35,63,0.06), 0 4px 16px rgba(16,35,63,0.06);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:var(--font-ui);
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  /* ===== Header ===== */
+  .topbar{
+    background:linear-gradient(135deg,var(--navy-950),var(--navy-800));
+    color:var(--white);
+    padding:28px 32px 24px;
+  }
+  .topbar-inner{
+    max-width:1280px;
+    margin:0 auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:16px;
+  }
+  .brand-eyebrow{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin:0 0 6px;
+  }
+  .brand-title{
+    font-size:26px;
+    font-weight:800;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .brand-sub{
+    font-size:13px;
+    color:var(--steel-400);
+    margin:6px 0 0;
+  }
+  .btn{
+    font-family:var(--font-ui);
+    font-weight:600;
+    font-size:13.5px;
+    border:none;
+    border-radius:8px;
+    padding:10px 18px;
+    cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease, background .15s ease;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--amber); color:var(--navy-950);}
+  .btn-primary:hover{background:var(--amber-deep); color:var(--white);}
+  .btn-ghost{background:rgba(255,255,255,0.08); color:var(--white); border:1px solid rgba(255,255,255,0.18);}
+  .btn-ghost:hover{background:rgba(255,255,255,0.16);}
+  .header-actions{display:flex; gap:10px; align-items:center;}
+  .sync-status{
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    color:var(--steel-400);
+    margin-right:2px;
+    white-space:nowrap;
+  }
+  .sync-status.ok{color:#7FD8A8;}
+  .sync-status.err{color:#F0A0A0;}
+
+  /* ===== Layout ===== */
+  .wrap{max-width:1280px; margin:0 auto; padding:24px 32px 60px;}
+
+  /* ===== Summary cards ===== */
+  .summary-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+    gap:14px;
+    margin-bottom:22px;
+  }
+  .stat-card{
+    background:var(--white);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:18px 20px;
+    border-top:3px solid var(--navy-800);
+    position:relative;
+    overflow:hidden;
+  }
+  .stat-card.warn{border-top-color:var(--amber);}
+  .stat-card.danger{border-top-color:var(--red);}
+  .stat-card.ok{border-top-color:var(--green);}
+  .stat-label{
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--ink-soft);
+    font-weight:600;
+    margin:0 0 8px;
+  }
+  .stat-value{
+    font-family:var(--font-mono);
+    font-size:28px;
+    font-weight:600;
+    margin:0;
+    color:var(--navy-950);
+  }
+  .stat-foot{font-size:12px; color:var(--ink-soft); margin-top:6px;}
+
+  /* ===== Toolbar ===== */
+  .toolbar{
+    background:var(--white);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:14px 18px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    margin-bottom:16px;
+  }
+  .toolbar input[type=text], .toolbar select{
+    font-family:var(--font-ui);
+    font-size:13.5px;
+    padding:9px 12px;
+    border:1px solid var(--steel-200);
+    border-radius:7px;
+    background:var(--steel-100);
+    color:var(--ink);
+    outline:none;
+  }
+  .toolbar input[type=text]{flex:1; min-width:180px;}
+  .toolbar select:focus, .toolbar input:focus{border-color:var(--navy-700);}
+  .chip-group{display:flex; gap:6px; flex-wrap:wrap;}
+  .chip{
+    font-size:12.5px;
+    font-weight:600;
+    padding:7px 13px;
+    border-radius:20px;
+    border:1px solid var(--steel-200);
+    background:var(--steel-100);
+    color:var(--ink-soft);
+    cursor:pointer;
+    user-select:none;
+    transition:all .12s ease;
+  }
+  .chip.active{background:var(--navy-900); color:var(--white); border-color:var(--navy-900);}
+  .chip.active.warn{background:var(--amber); color:var(--navy-950); border-color:var(--amber);}
+  .chip.active.danger{background:var(--red); color:var(--white); border-color:var(--red);}
+  .chip.active.ok{background:var(--green); color:var(--white); border-color:var(--green);}
+
+  /* ===== Table ===== */
+  .table-card{
+    background:var(--white);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  thead th{
+    text-align:left;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--ink-soft);
+    font-weight:700;
+    padding:12px 16px;
+    border-bottom:1px solid var(--steel-200);
+    background:var(--steel-100);
+    white-space:nowrap;
+  }
+  tbody td{
+    padding:12px 16px;
+    border-bottom:1px solid var(--steel-100);
+    vertical-align:middle;
+  }
+  tbody tr:hover{background:#FAFBFD;}
+  tbody tr:last-child td{border-bottom:none;}
+  .col-valor{font-family:var(--font-mono); font-weight:600; text-align:right;}
+  .col-data{font-family:var(--font-mono); color:var(--ink-soft); white-space:nowrap;}
+  .empresa-tag{
+    font-family:var(--font-mono);
+    font-size:11px;
+    padding:2px 7px;
+    border-radius:5px;
+    background:var(--steel-100);
+    color:var(--navy-800);
+    font-weight:600;
+  }
+
+  /* status badge */
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    font-size:11.5px;
+    font-weight:700;
+    padding:4px 10px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+  .badge-ok{background:#E4F5EC; color:var(--green-deep);}
+  .badge-prazo{background:#EAF0FA; color:var(--navy-700);}
+  .badge-warn{background:#FCF0DC; color:var(--amber-deep);}
+  .badge-danger{background:#FBE7E5; color:var(--red-deep);}
+  .badge-dot{width:6px; height:6px; border-radius:50%; background:currentColor;}
+  .badge-rodopar-ok{background:#E4F5EC; color:var(--green-deep);}
+  .badge-rodopar-pendente{background:var(--steel-100); color:var(--ink-soft);}
+
+  /* signature: fuse / heat bar indicating urgency */
+  .fuse-wrap{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    min-width:130px;
+  }
+  .fuse-track{
+    position:relative;
+    flex:1;
+    height:6px;
+    border-radius:4px;
+    background:var(--steel-200);
+    overflow:hidden;
+  }
+  .fuse-fill{
+    position:absolute; left:0; top:0; bottom:0;
+    border-radius:4px;
+    transition:width .3s ease;
+  }
+  .fuse-label{font-family:var(--font-mono); font-size:11px; color:var(--ink-soft); width:44px; text-align:right;}
+
+  .action-btn{
+    font-family:var(--font-ui);
+    font-size:12px;
+    font-weight:600;
+    border:1px solid var(--steel-200);
+    background:var(--white);
+    color:var(--navy-800);
+    border-radius:6px;
+    padding:6px 10px;
+    cursor:pointer;
+    margin-right:4px;
+  }
+  .action-btn:hover{background:var(--steel-100);}
+  .action-btn.receber{border-color:var(--green); color:var(--green-deep);}
+  .action-btn.rodopar{border-color:var(--navy-700); color:var(--navy-800);}
+  .action-btn.del{border-color:var(--red); color:var(--red-deep);}
+
+  .empty-state{
+    padding:60px 20px;
+    text-align:center;
+    color:var(--ink-soft);
+  }
+  .empty-state h3{color:var(--ink); margin-bottom:6px;}
+
+  /* ===== Modal ===== */
+  .modal-overlay{
+    display:none;
+    position:fixed; inset:0;
+    background:rgba(11,27,48,0.55);
+    align-items:center; justify-content:center;
+    z-index:100;
+    padding:20px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    background:var(--white);
+    border-radius:14px;
+    width:100%;
+    max-width:520px;
+    max-height:90vh;
+    overflow-y:auto;
+    padding:26px 26px 22px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.25);
+  }
+  .modal h2{margin:0 0 4px; font-size:19px; color:var(--navy-950);}
+  .modal p.sub{margin:0 0 18px; font-size:13px; color:var(--ink-soft);}
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    color:var(--ink-soft);
+    margin-bottom:5px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  .field input, .field select, .field textarea{
+    width:100%;
+    font-family:var(--font-ui);
+    font-size:14px;
+    padding:10px 12px;
+    border:1px solid var(--steel-200);
+    border-radius:7px;
+    background:var(--steel-100);
+    outline:none;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{border-color:var(--navy-700); background:var(--white);}
+  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .modal-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:20px;}
+  .btn-cancel{background:var(--steel-100); color:var(--ink-soft);}
+  .btn-cancel:hover{background:var(--steel-200);}
+
+  @media (max-width:900px){
+    .summary-grid{grid-template-columns:repeat(2,1fr);}
+    .wrap{padding:18px 16px 40px;}
+    .topbar{padding:22px 16px 20px;}
+    .field-row{grid-template-columns:1fr;}
+    table{font-size:12.5px;}
+    thead th, tbody td{padding:10px;}
+  }
+  @media (max-width:560px){
+    .summary-grid{grid-template-columns:1fr 1fr;}
+    .table-card{overflow-x:auto;}
+    table{min-width:820px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div>
+      <p class="brand-eyebrow">TSA · Financeiro</p>
+      <h1 class="brand-title">Conciliação de Cartão Corporativo</h1>
+      <p class="brand-sub">Controle de compras pendentes de nota fiscal · atualizado em tempo real para todo o time</p>
+    </div>
+    <div class="header-actions">
+      <span id="syncStatus" class="sync-status">●&nbsp;conectando...</span>
+      <button class="btn btn-ghost" onclick="fetchData()" title="Atualizar agora">⟳</button>
+      <button class="btn btn-ghost" onclick="openSettings()" title="Configurar conexão">⚙</button>
+      <button class="btn btn-ghost" onclick="exportCSV()">Exportar CSV</button>
+      <button class="btn btn-primary" onclick="openModal()">+ Nova pendência</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="summary-grid" id="summaryGrid"></div>
+
+  <div class="toolbar">
+    <input type="text" id="searchInput" placeholder="Buscar por colaborador, fornecedor ou cartão..." oninput="renderTable()">
+    <select id="empresaFilter" onchange="renderTable()">
+      <option value="">Todos os cartões</option>
+      <option value="ALLEANZA">ALLEANZA</option>
+      <option value="AILOS">AILOS</option>
+    </select>
+    <div class="chip-group" id="statusChips">
+      <div class="chip active" data-status="">Todos</div>
+      <div class="chip" data-status="prazo">No prazo</div>
+      <div class="chip warn" data-status="atencao">Atenção</div>
+      <div class="chip danger" data-status="vencido">Vencido</div>
+      <div class="chip ok" data-status="recebido">Recebido</div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>Colaborador</th>
+          <th>Cartão</th>
+          <th>Fornecedor</th>
+          <th>Fatura</th>
+          <th>Data compra</th>
+          <th class="col-valor">Valor</th>
+          <th>Urgência</th>
+          <th>Status</th>
+          <th>RODOPAR</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <h3>Nenhuma pendência encontrada</h3>
+      <p>Ajuste os filtros ou cadastre uma nova pendência de conciliação.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>Nova pendência</h2>
+    <p class="sub">Registre uma compra no cartão corporativo aguardando nota fiscal.</p>
+    <div class="field">
+      <label>Colaborador</label>
+      <input type="text" id="f_colaborador" placeholder="Ex: Nathalia Soares">
+    </div>
+    <div class="field">
+      <label>Cartão</label>
+      <select id="f_empresa">
+        <option value="ALLEANZA">ALLEANZA</option>
+        <option value="AILOS">AILOS</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Departamento</label>
+      <input type="text" id="f_departamento" placeholder="Ex: Manutenção">
+    </div>
+    <div class="field">
+      <label>Fornecedor</label>
+      <input type="text" id="f_fornecedor" placeholder="Ex: Posto Ipiranga">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Valor (R$)</label>
+        <input type="number" step="0.01" id="f_valor" placeholder="0,00">
+      </div>
+      <div class="field">
+        <label>Tem frete?</label>
+        <select id="f_temFrete" onchange="toggleFrete()">
+          <option value="nao">Não</option>
+          <option value="sim">Sim</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" id="campoValorFrete" style="display:none;">
+      <label>Valor do frete (R$)</label>
+      <input type="number" step="0.01" id="f_valorFrete" placeholder="0,00">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Data da compra</label>
+        <input type="date" id="f_data">
+      </div>
+      <div class="field">
+        <label>Prazo para envio da NF (dias)</label>
+        <input type="number" id="f_prazo" value="3" min="1">
+      </div>
+    </div>
+    <div class="field">
+      <label>Fatura de referência</label>
+      <select id="f_fatura"></select>
+    </div>
+    <div class="field">
+      <label>Compra parcelada?</label>
+      <select id="f_parcelado" onchange="toggleParcelas()">
+        <option value="nao">Não</option>
+        <option value="sim">Sim</option>
+      </select>
+    </div>
+    <div class="field" id="campoParcelas" style="display:none;">
+      <label>Em quantas parcelas?</label>
+      <input type="number" id="f_parcelas" min="2" placeholder="Ex: 3">
+    </div>
+    <div class="field">
+      <label>Observação <span style="color:var(--red-deep);">*</span></label>
+      <textarea id="f_obs" rows="2" placeholder="Ex: combustível de viagem a Campinas"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarPendencia()">Salvar pendência</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de configuração -->
+<div class="modal-overlay" id="settingsOverlay">
+  <div class="modal">
+    <h2>Conectar ao servidor compartilhado</h2>
+    <p class="sub">Configure uma vez neste dispositivo. Todo mundo que conectar no mesmo servidor vê as mesmas pendências, atualizadas automaticamente.</p>
+    <div class="field">
+      <label>Endereço do servidor</label>
+      <input type="text" id="s_apiBase" placeholder="https://seu-app.up.railway.app">
+    </div>
+    <div class="field">
+      <label>Chave de acesso (Panel Token)</label>
+      <input type="text" id="s_token" placeholder="a mesma chave configurada em PANEL_TOKEN">
+    </div>
+    <p id="settingsMsg" style="font-size:12.5px; color:var(--ink-soft); margin-top:-4px;"></p>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeSettings()">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarSettings()">Salvar e conectar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CONFIG_KEY = 'tsa_cartao_config_v1';
+let statusFilter = '';
+let data = [];
+let pollTimer = null;
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function fmtDate(iso){ if(!iso) return '—'; const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
+function fmtMoney(v){ return Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+function diffDays(iso){ const d1=new Date(iso+'T00:00:00'); const d2=new Date(todayISO()+'T00:00:00'); return Math.round((d2-d1)/86400000); }
+
+function preencherOpcoesFatura(){
+  const sel = document.getElementById('f_fatura');
+  const hoje = new Date();
+  const opcoes = [];
+  for(let i=-3; i<=6; i++){
+    const d = new Date(hoje.getFullYear(), hoje.getMonth()+i, 1);
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const yyyy = d.getFullYear();
+    opcoes.push(`${mm}/${yyyy}`);
+  }
+  sel.innerHTML = opcoes.map(o=>`<option value="${o}">${o}</option>`).join('');
+  const mmAtual = String(hoje.getMonth()+1).padStart(2,'0');
+  sel.value = `${mmAtual}/${hoje.getFullYear()}`;
+}
+preencherOpcoesFatura();
+
+// ===== Configuração de conexão (guardada só neste navegador) =====
+function getConfig(){
+  try { return JSON.parse(localStorage.getItem(CONFIG_KEY)) || {}; }
+  catch(e){ return {}; }
+}
+function setConfig(cfg){ localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg)); }
+
+function openSettings(){
+  const cfg = getConfig();
+  document.getElementById('s_apiBase').value = cfg.apiBase || '';
+  document.getElementById('s_token').value = cfg.token || '';
+  document.getElementById('settingsMsg').textContent = '';
+  document.getElementById('settingsOverlay').classList.add('open');
+}
+function closeSettings(){
+  document.getElementById('settingsOverlay').classList.remove('open');
+}
+document.getElementById('settingsOverlay').addEventListener('click', e=>{
+  if(e.target.id === 'settingsOverlay') closeSettings();
+});
+
+async function salvarSettings(){
+  const apiBase = document.getElementById('s_apiBase').value.trim().replace(/\/$/,'');
+  const token = document.getElementById('s_token').value.trim();
+  if(!apiBase || !token){
+    document.getElementById('settingsMsg').textContent = 'Preencha o endereço do servidor e a chave de acesso.';
+    return;
+  }
+  setConfig({apiBase, token});
+  closeSettings();
+  await fetchData();
+}
+
+// ===== Chamadas à API =====
+function apiHeaders(){
+  const cfg = getConfig();
+  return {
+    'Content-Type': 'application/json',
+    'x-panel-token': cfg.token || '',
+  };
+}
+
+function setSyncStatus(state, msg){
+  const el = document.getElementById('syncStatus');
+  el.classList.remove('ok','err');
+  if(state === 'ok'){ el.classList.add('ok'); el.textContent = '● ' + (msg || 'atualizado agora'); }
+  else if(state === 'err'){ el.classList.add('err'); el.textContent = '● ' + (msg || 'falha na conexão'); }
+  else { el.textContent = '● ' + (msg || 'conectando...'); }
+}
+
+async function fetchData(){
+  const cfg = getConfig();
+  if(!cfg.apiBase || !cfg.token){
+    setSyncStatus('err', 'configure a conexão (⚙)');
+    document.getElementById('tableBody').innerHTML = '';
+    document.getElementById('emptyState').style.display = 'block';
+    document.getElementById('emptyState').innerHTML = '<h3>Conexão não configurada</h3><p>Clique no ícone ⚙ no topo e informe o endereço do servidor e a chave de acesso para ver as pendências compartilhadas.</p>';
+    renderSummary();
+    return;
+  }
+  try{
+    const res = await fetch(`${cfg.apiBase}/api/pendencias`, {headers: apiHeaders()});
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    data = await res.json();
+    setSyncStatus('ok', 'sincronizado ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
+    renderTable();
+  }catch(e){
+    setSyncStatus('err', 'sem conexão com o servidor');
+  }
+}
+
+function startPolling(){
+  if(pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(fetchData, 8000); // atualiza sozinho a cada 8s
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'visible') fetchData();
+  });
+}
+
+function statusOf(item){
+  if(item.recebida) return 'recebido';
+  const decorridos = diffDays(item.data);
+  const restante = item.prazo - decorridos;
+  if(restante > 1) return 'prazo';
+  if(restante >= 0) return 'atencao';
+  return 'vencido';
+}
+
+function renderSummary(){
+  const abertas = data.filter(d=>!d.recebida);
+  const vencidas = abertas.filter(d=>statusOf(d)==='vencido');
+  const valorPendente = abertas.reduce((s,d)=>s+Number(d.valor),0);
+  const recebidasMes = data.filter(d=>d.recebida);
+  const totalMes = data.length;
+  const taxa = totalMes ? Math.round((recebidasMes.length/totalMes)*100) : 0;
+  const naoConciliadas = data.filter(d=>!d.conciliadoRodopar).length;
+
+  const cards = [
+    {label:'Pendências abertas', value:abertas.length, foot: abertas.length===1?'compra aguardando NF':'compras aguardando NF', cls:''},
+    {label:'Valor pendente', value:fmtMoney(valorPendente), foot:'em notas não conciliadas', cls:'warn'},
+    {label:'Vencidas', value:vencidas.length, foot:'fora do prazo estabelecido', cls: vencidas.length>0 ? 'danger':'ok'},
+    {label:'Conformidade', value: taxa+'%', foot:'pendências já regularizadas', cls:'ok'},
+    {label:'Pendentes no RODOPAR', value:naoConciliadas, foot: naoConciliadas===1?'nota ainda não lançada':'notas ainda não lançadas', cls: naoConciliadas>0 ? 'warn':'ok'},
+  ];
+  document.getElementById('summaryGrid').innerHTML = cards.map(c=>`
+    <div class="stat-card ${c.cls}">
+      <p class="stat-label">${c.label}</p>
+      <p class="stat-value">${c.value}</p>
+      <p class="stat-foot">${c.foot}</p>
+    </div>
+  `).join('');
+}
+
+function fuseColor(pct){
+  if(pct >= 100) return 'var(--red)';
+  if(pct >= 60) return 'var(--amber)';
+  return 'var(--green)';
+}
+
+function badgeFor(status){
+  const map = {
+    prazo: {cls:'badge-prazo', label:'No prazo'},
+    atencao: {cls:'badge-warn', label:'Atenção'},
+    vencido: {cls:'badge-danger', label:'Vencido'},
+    recebido: {cls:'badge-ok', label:'Recebida'},
+  };
+  const s = map[status];
+  return `<span class="badge ${s.cls}"><span class="badge-dot"></span>${s.label}</span>`;
+}
+
+function renderTable(){
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const empresa = document.getElementById('empresaFilter').value;
+
+  let rows = data.filter(item=>{
+    const st = statusOf(item);
+    if(statusFilter && st !== statusFilter) return false;
+    if(empresa && item.empresa !== empresa) return false;
+    if(q){
+      const hay = `${item.colaborador} ${item.fornecedor} ${item.empresa} ${item.departamento}`.toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  rows.sort((a,b)=>{
+    const order = {vencido:0, atencao:1, prazo:2, recebido:3};
+    const sa = order[statusOf(a)], sb = order[statusOf(b)];
+    if(sa !== sb) return sa - sb;
+    return new Date(a.data) - new Date(b.data);
+  });
+
+  const tbody = document.getElementById('tableBody');
+  const empty = document.getElementById('emptyState');
+
+  if(rows.length === 0){
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    empty.innerHTML = '<h3>Nenhuma pendência encontrada</h3><p>Ajuste os filtros ou cadastre uma nova pendência de conciliação.</p>';
+    renderSummary();
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = rows.map(item=>{
+    const st = statusOf(item);
+    const decorridos = diffDays(item.data);
+    const pct = item.recebida ? 0 : Math.min(140, Math.max(0, Math.round((decorridos/item.prazo)*100)));
+    const label = item.recebida ? 'OK' : (decorridos - item.prazo > 0 ? `+${decorridos-item.prazo}d` : `${item.prazo-decorridos}d rest.`);
+    const fuseHtml = item.recebida
+      ? `<span style="color:var(--green-deep); font-size:12px; font-weight:600;">Conciliada ${fmtDate(item.dataRecebimento)}</span>`
+      : `<div class="fuse-wrap">
+           <div class="fuse-track"><div class="fuse-fill" style="width:${Math.min(pct,100)}%; background:${fuseColor(pct)};"></div></div>
+           <span class="fuse-label">${label}</span>
+         </div>`;
+
+    return `
+      <tr>
+        <td>
+          <div style="font-weight:600;">${item.colaborador}</div>
+          <div style="font-size:11.5px; color:var(--ink-soft);">${item.departamento||''}</div>
+        </td>
+        <td><span class="empresa-tag">${item.empresa}</span></td>
+        <td>${item.fornecedor}</td>
+        <td class="col-data">${item.fatura || '—'}</td>
+        <td class="col-data">${fmtDate(item.data)}</td>
+        <td class="col-valor">${fmtMoney(Number(item.valor))}</td>
+        <td>${fuseHtml}</td>
+        <td>${badgeFor(st)}</td>
+        <td>
+          ${item.conciliadoRodopar
+            ? `<span class="badge badge-rodopar-ok"><span class="badge-dot"></span>Conciliado</span>`
+            : `<span class="badge badge-rodopar-pendente"><span class="badge-dot"></span>Pendente</span>`}
+        </td>
+        <td style="white-space:nowrap;">
+          ${!item.recebida ? `<button class="action-btn receber" onclick="marcarRecebida('${item.id}')">Receber NF</button>` : ''}
+          ${!item.conciliadoRodopar ? `<button class="action-btn rodopar" onclick="marcarRodopar('${item.id}')">RODOPAR</button>` : ''}
+          <button class="action-btn del" onclick="removerItem('${item.id}')">Excluir</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  renderSummary();
+}
+
+async function marcarRecebida(id){
+  const cfg = getConfig();
+  try{
+    const res = await fetch(`${cfg.apiBase}/api/pendencias/${id}/receber`, {method:'POST', headers: apiHeaders()});
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    await fetchData();
+  }catch(e){
+    alert('Não foi possível atualizar no servidor. Verifique a conexão.');
+  }
+}
+
+async function marcarRodopar(id){
+  const cfg = getConfig();
+  try{
+    const res = await fetch(`${cfg.apiBase}/api/pendencias/${id}/rodopar`, {method:'POST', headers: apiHeaders()});
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    await fetchData();
+  }catch(e){
+    alert('Não foi possível atualizar no servidor. Verifique a conexão.');
+  }
+}
+
+async function removerItem(id){
+  if(!confirm('Remover este registro definitivamente? Isso apaga a linha para todo mundo.')) return;
+  const cfg = getConfig();
+  try{
+    const res = await fetch(`${cfg.apiBase}/api/pendencias/${id}`, {method:'DELETE', headers: apiHeaders()});
+    if(!res.ok && res.status !== 204) throw new Error('HTTP ' + res.status);
+    await fetchData();
+  }catch(e){
+    alert('Não foi possível remover no servidor. Verifique a conexão.');
+  }
+}
+
+document.querySelectorAll('.chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    statusFilter = chip.dataset.status;
+    renderTable();
+  });
+});
+
+function toggleFrete(){
+  const mostrar = document.getElementById('f_temFrete').value === 'sim';
+  document.getElementById('campoValorFrete').style.display = mostrar ? 'block' : 'none';
+}
+function toggleParcelas(){
+  const mostrar = document.getElementById('f_parcelado').value === 'sim';
+  document.getElementById('campoParcelas').style.display = mostrar ? 'block' : 'none';
+}
+
+function openModal(){
+  document.getElementById('f_data').value = todayISO();
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  ['f_colaborador','f_departamento','f_fornecedor','f_valor','f_valorFrete','f_parcelas','f_obs'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f_prazo').value = 3;
+  document.getElementById('f_temFrete').value = 'nao';
+  document.getElementById('f_parcelado').value = 'nao';
+  preencherOpcoesFatura();
+  toggleFrete();
+  toggleParcelas();
+}
+document.getElementById('modalOverlay').addEventListener('click', e=>{
+  if(e.target.id === 'modalOverlay') closeModal();
+});
+
+async function salvarPendencia(){
+  const colaborador = document.getElementById('f_colaborador').value.trim();
+  const empresa = document.getElementById('f_empresa').value;
+  const departamento = document.getElementById('f_departamento').value.trim();
+  const fornecedor = document.getElementById('f_fornecedor').value.trim();
+  const valor = parseFloat(document.getElementById('f_valor').value);
+  const dataCompra = document.getElementById('f_data').value;
+  const prazo = parseInt(document.getElementById('f_prazo').value) || 3;
+  const obs = document.getElementById('f_obs').value.trim();
+  const temFrete = document.getElementById('f_temFrete').value === 'sim';
+  const valorFrete = temFrete ? (parseFloat(document.getElementById('f_valorFrete').value) || 0) : 0;
+  const parcelado = document.getElementById('f_parcelado').value === 'sim';
+  const parcelas = parcelado ? (parseInt(document.getElementById('f_parcelas').value) || 0) : 0;
+  const fatura = document.getElementById('f_fatura').value;
+
+  if(!colaborador || !fornecedor || !dataCompra || isNaN(valor)){
+    alert('Preencha colaborador, fornecedor, valor e data da compra.');
+    return;
+  }
+  if(!obs){
+    alert('A observação é obrigatória.');
+    return;
+  }
+  if(temFrete && (!valorFrete || valorFrete <= 0)){
+    alert('Informe o valor do frete.');
+    return;
+  }
+  if(parcelado && (!parcelas || parcelas < 2)){
+    alert('Informe em quantas parcelas (mínimo 2).');
+    return;
+  }
+
+  const cfg = getConfig();
+  if(!cfg.apiBase || !cfg.token){
+    alert('Configure a conexão com o servidor primeiro (ícone ⚙).');
+    return;
+  }
+
+  try{
+    const res = await fetch(`${cfg.apiBase}/api/pendencias`, {
+      method:'POST',
+      headers: apiHeaders(),
+      body: JSON.stringify({colaborador, empresa, departamento, fornecedor, valor, data:dataCompra, prazo, obs, temFrete, valorFrete, parcelado, parcelas, fatura})
+    });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    closeModal();
+    await fetchData();
+  }catch(e){
+    alert('Não foi possível salvar no servidor. Verifique a conexão.');
+  }
+}
+
+function exportCSV(){
+  const header = ['Colaborador','Cartão','Departamento','Fornecedor','Valor','Frete','Parcelado','Parcelas','Fatura','Data da compra','Prazo (dias)','Status','Data recebimento NF','RODOPAR','Observação'];
+  const rows = data.map(item=>[
+    item.colaborador, item.empresa, item.departamento, item.fornecedor,
+    Number(item.valor).toFixed(2).replace('.',','),
+    item.temFrete ? Number(item.valorFrete).toFixed(2).replace('.',',') : 'Não',
+    item.parcelado ? 'Sim' : 'Não', item.parcelado ? item.parcelas : '',
+    item.fatura || '',
+    fmtDate(item.data), item.prazo,
+    ({prazo:'No prazo',atencao:'Atenção',vencido:'Vencido',recebido:'Recebida'})[statusOf(item)],
+    item.dataRecebimento ? fmtDate(item.dataRecebimento) : '',
+    item.conciliadoRodopar ? 'Conciliado' : 'Pendente',
+    (item.obs||'').replace(/;/g,',')
+  ]);
+  const csv = [header.join(';'), ...rows.map(r=>r.join(';'))].join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `pendencias_cartao_${todayISO()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+fetchData();
+startPolling();
+</script>
+
+</body>
+</html>
