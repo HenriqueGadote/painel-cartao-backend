@@ -184,7 +184,7 @@
     background:var(--white);
     border-radius:var(--radius);
     box-shadow:var(--shadow);
-    overflow:hidden;
+    overflow-x:auto;
   }
   table{width:100%; border-collapse:collapse; font-size:13.5px;}
   thead th{
@@ -267,9 +267,9 @@
     background:var(--white);
     color:var(--navy-800);
     border-radius:6px;
-    padding:6px 10px;
+    padding:6px 9px;
     cursor:pointer;
-    margin-right:4px;
+    white-space:nowrap;
   }
   .action-btn:hover{background:var(--steel-100);}
   .action-btn.receber{border-color:var(--green); color:var(--green-deep);}
@@ -342,7 +342,7 @@
   @media (max-width:560px){
     .summary-grid{grid-template-columns:1fr 1fr;}
     .table-card{overflow-x:auto;}
-    table{min-width:820px;}
+    table{min-width:1080px;}
   }
 </style>
 </head>
@@ -730,10 +730,12 @@ function renderTable(){
             ? `<span class="badge badge-rodopar-ok"><span class="badge-dot"></span>Conciliado</span>`
             : `<span class="badge badge-rodopar-pendente"><span class="badge-dot"></span>Pendente</span>`}
         </td>
-        <td style="white-space:nowrap;">
-          ${!item.recebida ? `<button class="action-btn receber" onclick="marcarRecebida('${item.id}')">Receber NF</button>` : ''}
-          ${!item.conciliadoRodopar ? `<button class="action-btn rodopar" onclick="marcarRodopar('${item.id}')">RODOPAR</button>` : ''}
-          <button class="action-btn del" onclick="removerItem('${item.id}')">Excluir</button>
+        <td style="min-width:150px;">
+          <div style="display:flex; flex-wrap:wrap; gap:5px;">
+            ${!item.recebida ? `<button class="action-btn receber" onclick="marcarRecebida('${item.id}')">Receber NF</button>` : ''}
+            ${!item.conciliadoRodopar ? `<button class="action-btn rodopar" onclick="marcarRodopar('${item.id}')">RODOPAR</button>` : ''}
+            <button class="action-btn del" onclick="removerItem('${item.id}')">Excluir</button>
+          </div>
         </td>
       </tr>
     `;
