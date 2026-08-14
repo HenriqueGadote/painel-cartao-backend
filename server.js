@@ -5,6 +5,7 @@ const {
   listarPendenciasJSON,
   criarPendencia,
   marcarRecebida,
+  marcarConciliadoRodopar,
   removerPendencia,
 } = require('./lib/sheets');
 
@@ -50,6 +51,16 @@ app.post('/api/pendencias', checarTokenPainel, async (req, res) => {
 app.post('/api/pendencias/:id/receber', checarTokenPainel, async (req, res) => {
   try {
     const atualizado = await marcarRecebida(req.params.id);
+    if (!atualizado) return res.status(404).json({ erro: 'registro nao encontrado' });
+    res.json(atualizado);
+  } catch (e) {
+    res.status(500).json({ erro: e.message });
+  }
+});
+
+app.post('/api/pendencias/:id/rodopar', checarTokenPainel, async (req, res) => {
+  try {
+    const atualizado = await marcarConciliadoRodopar(req.params.id);
     if (!atualizado) return res.status(404).json({ erro: 'registro nao encontrado' });
     res.json(atualizado);
   } catch (e) {
