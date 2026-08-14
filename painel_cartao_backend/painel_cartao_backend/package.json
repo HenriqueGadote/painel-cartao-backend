@@ -1,0 +1,20 @@
+{
+  "name": "tsa-painel-cartao-backend",
+  "version": "1.0.0",
+  "description": "API que conecta o painel de pendencias de NF do cartao corporativo a uma Google Sheet compartilhada, para que todos vejam as mesmas atualizacoes.",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "google-spreadsheet": "^4.1.4",
+    "google-auth-library": "^9.14.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
