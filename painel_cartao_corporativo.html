@@ -101,6 +101,64 @@
   /* ===== Layout ===== */
   .wrap{max-width:1280px; margin:0 auto; padding:24px 32px 60px;}
 
+  /* ===== Limites dos cartões ===== */
+  .limites-section{margin-bottom:22px;}
+  .limites-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+  }
+  .limites-header h3{
+    font-size:15px;
+    font-weight:700;
+    color:var(--navy-950);
+    margin:0;
+  }
+  .limites-header .btn-ghost{
+    background:var(--steel-100);
+    color:var(--navy-800);
+    border:1px solid var(--steel-200);
+    padding:7px 14px;
+    font-size:12.5px;
+  }
+  .limites-header .btn-ghost:hover{background:var(--steel-200);}
+  .limites-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+    gap:14px;
+  }
+  .limite-card{
+    background:var(--white);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:16px 18px;
+  }
+  .limite-card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:10px;
+  }
+  .limite-valor{
+    font-family:var(--font-mono);
+    font-size:18px;
+    font-weight:700;
+    color:var(--navy-950);
+  }
+  .limite-card-foot{
+    display:flex;
+    justify-content:space-between;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-top:8px;
+  }
+  .limite-nao-definido{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    padding:4px 0;
+  }
+
   /* ===== Summary cards ===== */
   .summary-grid{
     display:grid;
@@ -421,6 +479,14 @@
 
 <div class="wrap">
 
+  <div class="limites-section">
+    <div class="limites-header">
+      <h3>Limites dos cartões</h3>
+      <button class="btn btn-ghost" onclick="openLimitesModal()">Editar limites</button>
+    </div>
+    <div class="limites-grid" id="limitesGrid"></div>
+  </div>
+
   <div class="summary-grid" id="summaryGrid"></div>
 
   <div class="toolbar">
@@ -552,6 +618,26 @@
   </div>
 </div>
 
+<!-- Modal de limites -->
+<div class="modal-overlay" id="limitesOverlay">
+  <div class="modal">
+    <h2>Editar limites dos cartões</h2>
+    <p class="sub">O valor disponível é recalculado automaticamente conforme as despesas lançadas.</p>
+    <div class="field">
+      <label>Limite ALLEANZA (R$)</label>
+      <input type="text" inputmode="decimal" id="lim_ALLEANZA" placeholder="0,00">
+    </div>
+    <div class="field">
+      <label>Limite AILOS (R$)</label>
+      <input type="text" inputmode="decimal" id="lim_AILOS" placeholder="0,00">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeLimitesModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarLimites()">Salvar limites</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal de configuração -->
 <div class="modal-overlay" id="settingsOverlay">
   <div class="modal">
@@ -670,6 +756,80 @@ function setSyncStatus(state, msg){
   else { el.textContent = '● ' + (msg || 'conectando...'); }
 }
 
+let limites = {};
+
+async function fetchLimites(){
+  const cfg = getConfig();
+  try{
+    const res = await fetch(`${cfg.apiBase}/api/limites`, {headers: apiHeaders()});
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    limites = await res.json();
+  }catch(e){ /* mantém os valores anteriores em caso de falha pontual */ }
+}
+
+function renderLimites(){
+  const cartoes = ['ALLEANZA','AILOS'];
+  document.getElementById('limitesGrid').innerHTML = cartoes.map(c=>{
+    const limite = Number(limites[c]) || 0;
+    const usado = data
+      .filter(d=>d.empresa===c)
+      .reduce((s,d)=> s + Number(d.valor) + (d.temFrete ? Number(d.valorFrete) : 0), 0);
+
+    if(!limite){
+      return `
+        <div class="limite-card">
+          <div class="limite-card-top">
+            <span class="empresa-tag">${c}</span>
+          </div>
+          <p class="limite-nao-definido">Limite ainda não definido. Usado até agora: ${fmtMoney(usado)}.</p>
+        </div>`;
+    }
+
+    const disponivel = limite - usado;
+    const pct = Math.min(100, Math.max(0, Math.round((usado/limite)*100)));
+    const cor = pct>=90 ? 'var(--red)' : pct>=70 ? 'var(--amber)' : 'var(--green)';
+
+    return `
+      <div class="limite-card">
+        <div class="limite-card-top">
+          <span class="empresa-tag">${c}</span>
+          <span class="limite-valor">${fmtMoney(disponivel)}</span>
+        </div>
+        <div class="fuse-track" style="height:8px;"><div class="fuse-fill" style="width:${pct}%; background:${cor};"></div></div>
+        <div class="limite-card-foot">
+          <span>Usado: ${fmtMoney(usado)} (${pct}%)</span>
+          <span>Limite: ${fmtMoney(limite)}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function openLimitesModal(){
+  document.getElementById('lim_ALLEANZA').value = limites.ALLEANZA ? String(limites.ALLEANZA).replace('.',',') : '';
+  document.getElementById('lim_AILOS').value = limites.AILOS ? String(limites.AILOS).replace('.',',') : '';
+  document.getElementById('limitesOverlay').classList.add('open');
+}
+function closeLimitesModal(){
+  document.getElementById('limitesOverlay').classList.remove('open');
+}
+document.getElementById('limitesOverlay').addEventListener('click', e=>{
+  if(e.target.id === 'limitesOverlay') closeLimitesModal();
+});
+
+async function salvarLimites(){
+  const cfg = getConfig();
+  const valALLEANZA = parseValorBR(document.getElementById('lim_ALLEANZA').value) || 0;
+  const valAILOS = parseValorBR(document.getElementById('lim_AILOS').value) || 0;
+  try{
+    await fetch(`${cfg.apiBase}/api/limites/ALLEANZA`, {method:'PUT', headers: apiHeaders(), body: JSON.stringify({limite: valALLEANZA})});
+    await fetch(`${cfg.apiBase}/api/limites/AILOS`, {method:'PUT', headers: apiHeaders(), body: JSON.stringify({limite: valAILOS})});
+    closeLimitesModal();
+    await fetchData();
+  }catch(e){
+    alert('Não foi possível salvar os limites. Verifique a conexão.');
+  }
+}
+
 async function fetchData(){
   const cfg = getConfig();
   if(!cfg.apiBase || !cfg.token){
@@ -684,8 +844,10 @@ async function fetchData(){
     const res = await fetch(`${cfg.apiBase}/api/pendencias`, {headers: apiHeaders()});
     if(!res.ok) throw new Error('HTTP ' + res.status);
     data = await res.json();
+    await fetchLimites();
     setSyncStatus('ok', 'sincronizado ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
     renderTable();
+    renderLimites();
   }catch(e){
     setSyncStatus('err', 'sem conexão com o servidor');
   }
