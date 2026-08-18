@@ -8,6 +8,7 @@ const {
   marcarRecebida,
   marcarConciliadoRodopar,
   removerPendencia,
+  fecharFatura,
   listarLimites,
   atualizarLimite,
 } = require('./lib/sheets');
@@ -86,6 +87,19 @@ app.delete('/api/pendencias/:id', checarTokenPainel, async (req, res) => {
     const ok = await removerPendencia(req.params.id);
     if (!ok) return res.status(404).json({ erro: 'registro nao encontrado' });
     res.status(204).send();
+  } catch (e) {
+    res.status(500).json({ erro: e.message });
+  }
+});
+
+app.post('/api/pendencias/fechar-fatura', checarTokenPainel, async (req, res) => {
+  try {
+    const { cartao, fatura } = req.body || {};
+    if (!cartao || !fatura) {
+      return res.status(400).json({ erro: 'informe cartao e fatura' });
+    }
+    const removidos = await fecharFatura(cartao, fatura);
+    res.json({ removidos });
   } catch (e) {
     res.status(500).json({ erro: e.message });
   }
