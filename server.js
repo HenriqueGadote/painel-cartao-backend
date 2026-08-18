@@ -4,6 +4,7 @@ const cors = require('cors');
 const {
   listarPendenciasJSON,
   criarPendencia,
+  atualizarPendencia,
   marcarRecebida,
   marcarConciliadoRodopar,
   removerPendencia,
@@ -43,6 +44,16 @@ app.post('/api/pendencias', checarTokenPainel, async (req, res) => {
   try {
     const nova = await criarPendencia(req.body || {});
     res.status(201).json(nova);
+  } catch (e) {
+    res.status(500).json({ erro: e.message });
+  }
+});
+
+app.put('/api/pendencias/:id', checarTokenPainel, async (req, res) => {
+  try {
+    const atualizado = await atualizarPendencia(req.params.id, req.body || {});
+    if (!atualizado) return res.status(404).json({ erro: 'registro nao encontrado' });
+    res.json(atualizado);
   } catch (e) {
     res.status(500).json({ erro: e.message });
   }
