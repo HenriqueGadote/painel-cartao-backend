@@ -8,6 +8,8 @@ const {
   marcarRecebida,
   marcarConciliadoRodopar,
   removerPendencia,
+  listarLimites,
+  atualizarLimite,
 } = require('./lib/sheets');
 
 const app = express();
@@ -84,6 +86,25 @@ app.delete('/api/pendencias/:id', checarTokenPainel, async (req, res) => {
     const ok = await removerPendencia(req.params.id);
     if (!ok) return res.status(404).json({ erro: 'registro nao encontrado' });
     res.status(204).send();
+  } catch (e) {
+    res.status(500).json({ erro: e.message });
+  }
+});
+
+app.get('/api/limites', checarTokenPainel, async (req, res) => {
+  try {
+    const limites = await listarLimites();
+    res.json(limites);
+  } catch (e) {
+    res.status(500).json({ erro: e.message });
+  }
+});
+
+app.put('/api/limites/:cartao', checarTokenPainel, async (req, res) => {
+  try {
+    const limite = Number(req.body && req.body.limite) || 0;
+    const atualizado = await atualizarLimite(req.params.cartao, limite);
+    res.json(atualizado);
   } catch (e) {
     res.status(500).json({ erro: e.message });
   }
