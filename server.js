@@ -8,7 +8,7 @@ const {
   marcarRecebida,
   marcarConciliadoRodopar,
   removerPendencia,
-  fecharFatura,
+  removerVarios,
   listarLimites,
   atualizarLimite,
 } = require('./lib/sheets');
@@ -92,13 +92,13 @@ app.delete('/api/pendencias/:id', checarTokenPainel, async (req, res) => {
   }
 });
 
-app.post('/api/pendencias/fechar-fatura', checarTokenPainel, async (req, res) => {
+app.post('/api/pendencias/excluir-em-lote', checarTokenPainel, async (req, res) => {
   try {
-    const { cartao, fatura } = req.body || {};
-    if (!cartao || !fatura) {
-      return res.status(400).json({ erro: 'informe cartao e fatura' });
+    const { ids } = req.body || {};
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ erro: 'informe um array de ids' });
     }
-    const removidos = await fecharFatura(cartao, fatura);
+    const removidos = await removerVarios(ids);
     res.json({ removidos });
   } catch (e) {
     res.status(500).json({ erro: e.message });
